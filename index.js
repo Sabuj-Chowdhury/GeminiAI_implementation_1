@@ -108,6 +108,28 @@ app.get("/chat", async (req, res) => {
   res.send({ answer: ans });
 });
 
+// generate JSON
+app.get("/json", async (req, res) => {
+  const prompt = req.query?.prompt;
+  if (!prompt) {
+    return res.send({ message: "Please provide prompt in the query!" });
+  }
+
+  const finalPrompt = `${prompt} using this JSON schema:
+
+output = {'key': value}
+Return: Array<output>`;
+
+  // const finalPrompt = `
+  // ${prompt}.generate a JSON schema:
+  //  output = {'property': string}
+  //  Return: Array<output>`;
+  const result = await model.generateContent(finalPrompt);
+  const output = result.response.text().slice(7, -4);
+  // const ans = result.response.text();
+  res.send(JSON.parse(output));
+});
+
 app.get("/", (req, res) => {
   res.send("hurrrrraaaaahhhhh!!");
 });
