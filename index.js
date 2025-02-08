@@ -2,8 +2,10 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const app = express();
+
 const port = process.env.PORT || 5000;
 const { GoogleGenerativeAI } = require("@google/generative-ai");
+const { default: axios } = require("axios");
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const model = genAI.getGenerativeModel({
@@ -108,14 +110,14 @@ app.get("/chat", async (req, res) => {
   res.send({ answer: ans });
 });
 
-// generate JSON
+// generate JSON  ***BUGS : can not handle complex prompt or more tha 2 tokens can't handle
 app.get("/json", async (req, res) => {
   const prompt = req.query?.prompt;
   if (!prompt) {
     return res.send({ message: "Please provide prompt in the query!" });
   }
 
-  const finalPrompt = `${prompt} using this JSON schema:
+  const finalPrompt = `${prompt} generate basic JSON data using this JSON schema:
 
 output = {'key': value}
 Return: Array<output>`;
@@ -128,6 +130,32 @@ Return: Array<output>`;
   const output = result.response.text().slice(7, -4);
   // const ans = result.response.text();
   res.send(JSON.parse(output));
+});
+
+// Image to text (generate text content about that image form URL)
+// *****BUGS: anything other imageURL crashes the app*****
+app.get("/image", async (req, res) => {
+  const prompt = req.query?.prompt;
+  if (!prompt) {
+    return res.send({ message: "Provide query prompt(URL)!" });
+  }
+
+  // Fetch the image from the URL
+  const imageResp = await axios.get(prompt, { responseType: "arraybuffer" });
+  // const imageBuffer = imageResp.data;
+  // console.log(imageBuffer);
+
+  const result = await model.generateContent([
+    {
+      inlineData: {
+        data: Buffer.from(imageResp.data).toString("base64"),
+        mimeType: "image/jpeg",
+      },
+    },
+    "Tell me about the details of the image.",
+  ]);
+  // console.log(result.response.text());
+  res.send({ Description: result.response.text() });
 });
 
 app.get("/", (req, res) => {
