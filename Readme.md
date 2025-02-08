@@ -68,28 +68,6 @@ I am currently learning how to integrate AI APIs into projects. This server is a
    node index.js  # or nodemon index.js if you have nodemon installed
    ```
 
-6. Clone the repository:
-   ```sh
-   git clone <repository-url>
-   ```
-7. Navigate to the project directory:
-   ```sh
-   cd ai-powered-express-server
-   ```
-8. Install dependencies:
-   ```sh
-   npm install
-   ```
-9. Create a `.env` file in the root directory and add your API key:
-   ```sh
-   GEMINI_API_KEY=your_google_generative_ai_key
-   PORT=5000  # or any desired port
-   ```
-10. Start the server:
-    ```sh
-    node index.js  # or nodemon index.js if you have nodemon installed
-    ```
-
 ## API Endpoints
 
 ### 1. Text-to-Text Response
